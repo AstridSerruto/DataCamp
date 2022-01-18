@@ -2,46 +2,46 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
-import numpy as np
-
-
 def draw_plot():
+
     # Read data from file
-    df = pd.read_csv("epa-sea-level.csv", index_col="Year")
-    # 'CSIRO Adjusted Sea Level', 'Lower Error Bound',
-    # 'Upper Error Bound', 'NOAA Adjusted Sea Level'
+  df = pd.read_csv("epa-sea-level.csv")
+  x = df["Year"]
+  y = df["CSIRO Adjusted Sea Level"]
 
-    # Use matplotlib to create a scatter plot using the "Year" column as the x-axis and the "CSIRO Adjusted Sea Level" column as the y-axix
-    plt.xlim(1850, 2075)
-    plt.plot(df.index, df['CSIRO Adjusted Sea Level'], 'o', label='original data')
-
+  # print(df)
+    # Create scatter plot
+  # plt.scatter(df["Year"], df["CSIRO Adjusted Sea Level"])
+  # this one's for the legend
+  fig, ax = plt.subplots() 
+  plt.scatter(x, y)
+  
     # Create first line of best fit
-    # Use the linregress function from scipi.stats
-    # to get the slope and y-intercept of the line of best fit.
-    # Plot the line of best fit over the top of the scatter plot.
-    # Make the line go through the year 2050 to predict the sea level rise in 2050.
-    # https://realpython.com/linear-regression-in-python/
-    slope, intercept, r_value, p_value, std_err = linregress(df.index, df['CSIRO Adjusted Sea Level'])
+  res = linregress(x,y)
+  # print(res)
 
-    #x = df.index
-    x = pd.Series(np.arange(1850,2076))
-    plt.plot(x, intercept + slope*x, 'r', label='fitted line')
+  x_pre = pd.Series([i for i in range(1880, 2051)])
+  # print(x_pre)
+  # print(res.slope * x_pre)
+  y_pre = res.slope * x_pre + res.intercept
+  plt.plot(x_pre, y_pre, "r")
 
     # Create second line of best fit
-    # Plot a new line of best fit just using the data from year 2000 through the most recent year in the dataset.
-    # Make the line also go through the year 2050 to predict the sea level rise in 2050 if the rate of rise continues as it has since the year 2000
-    df2000 = df.loc[df.index >= 2000]
-    slope2, intercept2, r_value2, p_value2, std_err2 = linregress(df2000.index, df2000['CSIRO Adjusted Sea Level'])
-
-    x2 = pd.Series(np.arange(2000,2076))
-    plt.plot(x2, intercept2 + slope2*x2, 'g', label='fitted line 2000')
+  new_df = df.loc[df["Year"] >= 2000]
+  new_x = new_df["Year"]
+  new_y = new_df["CSIRO Adjusted Sea Level"]
+  res_new = linregress(new_x, new_y)
+  x_pre_new = pd.Series([i for i in range(2000, 2051)])
+  y_pre_new = res_new.slope*x_pre_new + res_new.intercept
+  plt.plot(x_pre_new, y_pre_new) 
 
     # Add labels and title
-    plt.xlabel('Year')
-    plt.ylabel('Sea Level (inches)')
-    plt.title('Rise in Sea Level')
-    #plt.legend()
-    
+  ax.set_xlabel("Year")
+  ax.set_ylabel("Sea Level (inches)")
+  ax.set_title("Rise in Sea Level")
+
     # Save plot and return data for testing (DO NOT MODIFY)
-    plt.savefig('sea_level_plot.png')
-    return plt.gca()
+  plt.savefig('sea_level_plot.png')
+  return plt.gca()
+
+  
